@@ -1,0 +1,18 @@
+# IntelliJ
+.idea
+*.iml
+/target/
+/src/exploration/
+
+*.ipr
+*.iws
+
+# Client Secrets
+/src/main/resources/client_secret*.json
+
+# Gradle
+.gradle
+/build/
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
