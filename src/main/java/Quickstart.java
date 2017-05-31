@@ -5,19 +5,23 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.Base64;
 import com.google.api.client.util.store.FileDataStoreFactory;
-
-import com.google.api.services.gmail.GmailScopes;
-import com.google.api.services.gmail.model.*;
 import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.GmailScopes;
+import com.google.api.services.gmail.model.ListMessagesResponse;
+import com.google.api.services.gmail.model.Message;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+import java.io.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 public class Quickstart {
     /** Application name. */
@@ -44,7 +48,7 @@ public class Quickstart {
      * at ~/.credentials/gmail-java-quickstart
      */
     private static final List<String> SCOPES =
-            Arrays.asList(GmailScopes.GMAIL_LABELS);
+            Collections.singletonList(GmailScopes.GMAIL_MODIFY);
 
     static {
         try {
@@ -94,23 +98,55 @@ public class Quickstart {
                 .build();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, MessagingException {
         // Build a new authorized API client service.
         Gmail service = getGmailService();
 
         // Print the labels in the user's account.
         String user = "me";
-        ListLabelsResponse listResponse =
-                service.users().labels().list(user).execute();
-        List<Label> labels = listResponse.getLabels();
-        if (labels.size() == 0) {
-            System.out.println("No labels found.");
-        } else {
-            System.out.println("Labels:");
-            for (Label label : labels) {
-                System.out.printf("- %s\n", label.getName());
-            }
+
+        ListMessagesResponse messagesResponse = service.users()
+                .messages().list(user)
+                .setQ("from:(no-reply@grab.com) business receipt after:2017/05/28 before:2017/05/30 ")
+                .execute();
+        List<Message> messages = messagesResponse.getMessages();
+        for (Message message: messages) {
+            message = service.users().messages().get(user, message.getId()).execute();
+            System.out.println("Message snippet: " + message.getSnippet());
+            MimeMessage mimeMessage = getMimeMessage(service, user, message.getId());
+            sendMessage(service, user, mimeMessage);
         }
+    }
+
+    public static MimeMessage getMimeMessage(Gmail service, String userId, String messageId)
+            throws IOException, MessagingException {
+        Message message = service.users().messages().get(userId, messageId).setFormat("raw").execute();
+
+        byte[] emailBytes = Base64.decodeBase64(message.getRaw());
+
+        Properties props = new Properties();
+        Session session = Session.getDefaultInstance(props, null);
+
+        return new MimeMessage(session, new ByteArrayInputStream(emailBytes));
+    }
+
+    public static void sendMessage(Gmail service, String userId, MimeMessage email)
+            throws MessagingException, IOException {
+        Message message = createMessageWithEmail(email);
+        message = service.users().messages().send(userId, message).execute();
+
+        System.out.println("Message id: " + message.getId());
+        System.out.println(message.toPrettyString());
+    }
+
+    public static Message createMessageWithEmail(MimeMessage email)
+            throws MessagingException, IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        email.writeTo(baos);
+        String encodedEmail = Base64.encodeBase64URLSafeString(baos.toByteArray());
+        Message message = new Message();
+        message.setRaw(encodedEmail);
+        return message;
     }
 
 }
