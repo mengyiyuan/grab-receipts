@@ -106,7 +106,7 @@ public class Quickstart {
 
         ListMessagesResponse messagesResponse = service.users()
                 .messages().list(user)
-                .setQ("from:(no-reply@grab.com) business receipt after:2017-05-28 before:2017-05-30")
+                .setQ(new DateHandler().formatSearchQuery())
                 .execute();
         List<Message> messages = messagesResponse.getMessages();
         for (Message message: messages) {
