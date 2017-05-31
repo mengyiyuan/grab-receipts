@@ -7,9 +7,10 @@ New since last check-in:
 * add in example methods for sending emails, but not sure how to construct a MIME object from scratch or from messages retrieved from the last step
 
 TO-DOs:
-* parse message properly
-* send message with MIME body
-* set date to Monday - Friday of the passing week (or generalize in the future)
-* write tests
-* use REST api not client api?
+* ~~parse message properly~~
+* ~~send message with MIME body~~
+* ~~set date to Monday - Friday of the passing week (or generalize in the future)~~
+* complete tests
+* refactor code
+* ~~use REST api not client api? -nope, client api works~~
 * ...
