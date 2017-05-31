@@ -18,7 +18,6 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.io.*;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -107,7 +106,7 @@ public class Quickstart {
 
         ListMessagesResponse messagesResponse = service.users()
                 .messages().list(user)
-                .setQ("from:(no-reply@grab.com) business receipt after:2017/05/28 before:2017/05/30 ")
+                .setQ("from:(no-reply@grab.com) business receipt after:2017-05-28 before:2017-05-30")
                 .execute();
         List<Message> messages = messagesResponse.getMessages();
         for (Message message: messages) {
