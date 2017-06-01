@@ -1,4 +1,4 @@
-#### Run Quickstart by running `gradle -q run`
+#### Run GrabReceiptsForwarder by running `gradle -q run`
 
 [Tutorial guide](https://developers.google.com/gmail/api/quickstart/java)
 
@@ -10,7 +10,9 @@ TO-DOs:
 * ~~parse message properly~~
 * ~~send message with MIME body~~
 * ~~set date to Monday - Friday of the passing week (or generalize in the future)~~
+* take input from somewhere to generalize the date range of receipts
 * complete tests
-* refactor code
+* ~~refactor code~~
 * ~~use REST api not client api? -nope, client api works~~
+* ~~test sending receipts to expensify~~
 * ...
